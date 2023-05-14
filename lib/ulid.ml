@@ -42,17 +42,6 @@ let time_len = 10
 
 let random_len = 16
 
-let rng_init = ref false
-
-let get_nocrypto_rng () =
-  let () =
-    if !rng_init = false then (
-      Nocrypto_entropy_unix.initialize () ;
-      rng_init := true )
-  in
-  let rng int = Nocrypto.Rng.Int.gen int in
-  rng
-
 let random_char prng () =
   let idx = prng encoding_len in
   encoding.(idx)
@@ -109,25 +98,22 @@ let increment_base_32 str =
   in
   incr false index initial initial
 
-let get_now () = int_of_float (1000. *. Unix.gettimeofday ())
-
-let ulid ?(seed_time = get_now ()) () =
-  let s = Buffer.create (time_len + random_len) in
-  Buffer.add_string s (encode_time seed_time time_len) ;
-  Buffer.add_string s (encode_random random_len (get_nocrypto_rng ())) ;
-  Buffer.contents s
-
-let ulid_factory ?(prng = get_nocrypto_rng ()) () ?(seed_time = get_now ()) ()
-    =
+let ulid ~seed_time ~prng () =
   let s = Buffer.create (time_len + random_len) in
   Buffer.add_string s (encode_time seed_time time_len) ;
   Buffer.add_string s (encode_random random_len prng) ;
   Buffer.contents s
 
-let monotonic_factory ?(prng = get_nocrypto_rng ()) () =
+let ulid_factory ~prng ~seed_time =
+  let s = Buffer.create (time_len + random_len) in
+  Buffer.add_string s (encode_time seed_time time_len) ;
+  Buffer.add_string s (encode_random random_len prng) ;
+  Buffer.contents s
+
+let monotonic_factory ~prng =
   let last_time = ref 0 in
   let last_random = ref "" in
-  fun ?(seed_time = get_now ()) () ->
+  fun ~seed_time ->
     let s = Buffer.create (time_len + random_len) in
     let () =
       if seed_time <= !last_time then

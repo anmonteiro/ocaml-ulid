@@ -1,5 +1,3 @@
 (library
-  (name ulid)
-  (public_name ulid)
-  (libraries unix nocrypto nocrypto.unix)
-)
+ (name ulid)
+ (public_name ulid))
