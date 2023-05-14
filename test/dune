@@ -1,7 +1,8 @@
 (executable
-  (name test)
-  (libraries ulid alcotest))
+ (name test)
+ (libraries ulid alcotest mirage-crypto-pk mirage-crypto-rng.unix))
 
 (alias
-  (name runtest)
-  (action (run ./test.exe)))
+ (name runtest)
+ (action
+  (run ./test.exe)))
